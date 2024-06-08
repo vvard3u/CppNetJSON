@@ -1,3 +1,4 @@
+# Imports
 import socket
 import json
 import sys
@@ -5,8 +6,10 @@ import argparse
 import logging
 import configparser
 
+# Enabling logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Setting variables from config file
 parser = configparser.ConfigParser()
 parser.read('./server.cfg')
 try:
@@ -20,12 +23,14 @@ except configparser.Error as e:
     logging.error(f"Error reading config file: {e}")
     exit(1)
 
+# Request sample
 def send_request(command, params):
     request = {
         "command1": command,
         "params": params
     }
 
+# Connection to the server
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
@@ -44,6 +49,8 @@ def send_request(command, params):
         logging.error(f"Unexpected error: {e}")
         return {"error": "Unexpected error"}
 
+
+# Main function with args parsing
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('command', help='CheckLocalFile or QuarantineLocalFile')
