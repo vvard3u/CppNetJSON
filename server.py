@@ -1,4 +1,4 @@
-
+# Imports
 import socket
 import os
 import selectors
@@ -8,7 +8,7 @@ import json
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-
+# Enabling logging
 logging.basicConfig(
     filename='logfile.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
@@ -16,6 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Setting variables from config file
 parser = configparser.ConfigParser()
 parser.read('./server.cfg')
 
@@ -33,12 +34,14 @@ except configparser.Error as e:
     logging.error(f"Error reading config file: {e}")
     exit(1)
 
-
+# Creating quarantine directory
 if not os.path.exists(QUARANTINE_DIR):
     os.makedirs(QUARANTINE_DIR)
 
 sel = selectors.DefaultSelector()
 
+
+# Connection handler
 def conn_handler(conn, addr):
     try:
         data = conn.recv(BUFFER_SIZE)
@@ -68,6 +71,7 @@ def conn_handler(conn, addr):
     finally:
         conn.close()
 
+# Checking file for signature
 def check_local_file(params):
     file_path = params.get('file_path')
     signature = bytes.fromhex(params.get('signature'))
@@ -86,8 +90,10 @@ def check_local_file(params):
         while offset != -1:
             offsets.append(offset)
             offset = content.find(signature, offset + 1)
-    return {'Offsets:': offsets}
+    return {'Offsets:': offsets} # Returning the signature offset/where it was found
 
+
+# Moving file to quarantine directory
 def quarantine_local_file(params):
     file_path = params.get('file_path')
 
@@ -105,23 +111,26 @@ def quarantine_local_file(params):
         logger.info(f'{file_name} placed to quarantine')
         return {'Status': 'File replaced to quarantine.'}
     except Exception as e:
+        logger.error(f'Error: {e}')
         return {'Error': str(e)}
 
     
     
-
+# Accepting connections
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     logger.info(f'Connected by {addr}')
     conn.setblocking(False)
     sel.register(conn, selectors.EVENT_READ, read_wrapper)
 
+# Setting multithreading
 def read_wrapper(conn):
     sel.unregister(conn)
     with ThreadPoolExecutor(max_workers=THREADS) as executor:
         executor.submit(conn_handler, conn, conn.getpeername())
 
 
+# Setting server with variables and start it.
 def start_server():
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.bind((HOST, PORT))
@@ -137,6 +146,7 @@ def start_server():
             callback = key.data
             callback(key.fileobj)
 
+# Maintaining CTRL+C signal.
 def signal_handler(sig, frame):
     print('Shutting down server...')
     logger.info('Shutting down server...')
@@ -144,6 +154,8 @@ def signal_handler(sig, frame):
     os._exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+
+
 
 if __name__=="__main__":
     start_server()
