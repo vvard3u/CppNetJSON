@@ -258,9 +258,6 @@ std::string QuarantineLocalFile(std::map<std::string, std::string> params) {
     const std::string DEFAULT_QUARANTINE_DIR = getConfigValue("DEFAULT_QUARANTINE_DIR", "quarantine");
     std::string response;
 
-    std::cout << "File path: " << filePath << std::endl;
-    std::cout << "Quarantine directory: " << DEFAULT_QUARANTINE_DIR << std::endl;
-
     if (filePath.empty()) {
         response = "{\"error\": \"file path is empty\"}";
         return response;
@@ -279,13 +276,11 @@ std::string QuarantineLocalFile(std::map<std::string, std::string> params) {
     std::filesystem::path newFilePath = std::filesystem::path(DEFAULT_QUARANTINE_DIR) / std::filesystem::path(filePath).filename();
     std::filesystem::path oldFilePath = std::filesystem::path(filePath);
 
-    std::cout << "New file path: " << newFilePath << std::endl;
-    std::cout << "Old file path: " << oldFilePath << std::endl;
 
     // Use MoveFile to move the file and capture any errors
     if (MoveFileA(oldFilePath.string().c_str(), newFilePath.string().c_str()) == 0) {
         DWORD error = GetLastError();
-        std::cout << "MoveFile failed with error: " << error << std::endl;
+        std::cout << "MoveFile failed with error: \n" << error;
         response = "{\"error\": \"failed to quarantine file, error code: " + std::to_string(error) + "\"}";
     }
     else {
