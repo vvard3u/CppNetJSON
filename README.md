@@ -1,6 +1,6 @@
 
 # Multithreaded TCP Server and Single-threaded Console Client
-
+## This is Python branch, will not be suppuorted in futute
 This project implements a multithreaded TCP server and a single-threaded console client for sending JSON formatted requests to the server. The server handles two types of requests:
 1. `CheckLocalFile`: Checks a specified file for a signature and returns a list of offsets where the signature is found.
 2. `QuarantineLocalFile`: Moves a specified file to a quarantine directory.
@@ -16,11 +16,11 @@ This project implements a multithreaded TCP server and a single-threaded console
 ## Installation
 1. Clone the repository:
     ```sh
-    git clone https://github.com/vvard3u/INT-3.git
+    git clone https://github.com/vvard3u/CPPNetJSON.git
     ```
 2. Navigate to the project directory:
     ```sh
-    cd INT-3
+    cd CPPNetHson
     ```
 
 ## Configuration
